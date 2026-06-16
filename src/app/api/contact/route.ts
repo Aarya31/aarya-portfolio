@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { saveContactMessage } from "@/lib/contact_db";
 
 export async function POST(request: Request) {
   try {
@@ -30,17 +31,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Message must be at least 10 characters long" }, { status: 400 });
     }
 
-    // 2. Database storage simulated logic / Webhook integrations
-    // In a live production context, we would trigger an email client (e.g., Nodemailer, Resend)
-    // or log message contents to a cloud store.
-    console.log(`[API CONTACT SUBMISSION]: From: ${name} <${email}>. Subject: ${subject}. Message: ${message}`);
+    // 2. Persist message in database
+    const saved = await saveContactMessage({ name, email, subject, message });
+    console.log(`[API CONTACT SUBMISSION SAVED]: ID: ${saved.id}, From: ${name} <${email}>`);
 
     return NextResponse.json(
       { message: "Form submission processed successfully" },
       { status: 200 }
     );
 
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("API error in contact route: ", err);
     return NextResponse.json(
       { message: "An internal server error occurred while processing your message." },

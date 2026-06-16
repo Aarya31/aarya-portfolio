@@ -91,12 +91,22 @@ export default function Contact() {
       }
 
       setSubmitSuccess(true);
+      
+      // Track successful form submission
+      const globalWindow = typeof window !== "undefined" 
+        ? (window as unknown as { trackAnalyticsEvent?: (name: string, val?: string, type?: string) => void }) 
+        : null;
+      if (globalWindow?.trackAnalyticsEvent) {
+        globalWindow.trackAnalyticsEvent("contact_submit", subject, "form_submit");
+      }
+
       setName("");
       setEmail("");
       setSubject("");
       setMessage("");
-    } catch (err: any) {
-      setSubmitError(err.message || "An unexpected error occurred.");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred.";
+      setSubmitError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -115,7 +125,7 @@ export default function Contact() {
             transition={{ duration: 0.6 }}
           >
             <span className="text-xs font-semibold tracking-[0.2em] text-cyan-400 uppercase font-mono">
-              09 // Let's Connect
+              09 // Let&apos;s Connect
             </span>
             <h2 className="text-3xl md:text-5xl font-extrabold text-white mt-3 tracking-tight">
               Get In Touch
